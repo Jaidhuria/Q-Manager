@@ -14,6 +14,7 @@ const SubtopicSection = ({
   onAddQuestion,
   onUpdateQuestion,
   onDeleteQuestion,
+  filters,
 }) => {
   const [isExpanded, setIsExpanded] = useState(true);
   const [isAddingQuestion, setIsAddingQuestion] = useState(false);
@@ -82,7 +83,29 @@ const SubtopicSection = ({
                   </h3>
                 )}
                 <span className="ml-3 text-sm text-gray-500 dark:text-gray-400">
-                  ({subtopic.questions.length} questions)
+                  {(() => {
+                    const total = subtopic.questions.length;
+                    const hasFilters =
+                      filters &&
+                      ((filters.difficulty && filters.difficulty !== 'All') ||
+                        (filters.status && filters.status !== 'All') ||
+                        (filters.search && filters.search.trim() !== ''));
+                    if (!hasFilters) {
+                      return `(${total} questions)`;
+                    }
+                    const visible = (subtopic.questions || []).filter((question) => {
+                      const difficultyMatch =
+                        !filters.difficulty || filters.difficulty === 'All' || question.difficulty === filters.difficulty;
+                      const statusValue = question.status || 'Not Started';
+                      const statusMatch =
+                        !filters.status || filters.status === 'All' || statusValue === filters.status;
+                      const searchTerm = (filters.search || '').trim().toLowerCase();
+                      const searchMatch =
+                        !searchTerm || question.title.toLowerCase().includes(searchTerm);
+                      return difficultyMatch && statusMatch && searchMatch;
+                    }).length;
+                    return `(${visible} / ${total} questions)`;
+                  })()}
                 </span>
               </div>
               <div className="flex items-center gap-2">
@@ -121,12 +144,48 @@ const SubtopicSection = ({
                     snapshot.isDraggingOver ? 'bg-primary-50 dark:bg-primary-900/20' : ''
                   }`}
                 >
-                  {subtopic.questions.length === 0 ? (
-                    <p className="text-sm text-gray-400 dark:text-gray-500 text-center py-4">
-                      No questions yet. Click + to add one.
-                    </p>
-                  ) : (
-                    subtopic.questions.map((question, qIndex) => (
+                  {(() => {
+                    const hasFilters =
+                      filters &&
+                      ((filters.difficulty && filters.difficulty !== 'All') ||
+                        (filters.status && filters.status !== 'All') ||
+                        (filters.search && filters.search.trim() !== ''));
+
+                    const filteredQuestions = (subtopic.questions || []).filter((question) => {
+                      const difficultyMatch =
+                        !filters ||
+                        !filters.difficulty ||
+                        filters.difficulty === 'All' ||
+                        question.difficulty === filters.difficulty;
+                      const statusValue = question.status || 'Not Started';
+                      const statusMatch =
+                        !filters ||
+                        !filters.status ||
+                        filters.status === 'All' ||
+                        statusValue === filters.status;
+                      const searchTerm = filters?.search?.trim().toLowerCase() || '';
+                      const searchMatch =
+                        !searchTerm || question.title.toLowerCase().includes(searchTerm);
+                      return difficultyMatch && statusMatch && searchMatch;
+                    });
+
+                    if (subtopic.questions.length === 0) {
+                      return (
+                        <p className="text-sm text-gray-400 dark:text-gray-500 text-center py-4">
+                          No questions yet. Click + to add one.
+                        </p>
+                      );
+                    }
+
+                    if (filteredQuestions.length === 0 && hasFilters) {
+                      return (
+                        <p className="text-sm text-gray-400 dark:text-gray-500 text-center py-4">
+                          No questions match the current filters.
+                        </p>
+                      );
+                    }
+
+                    return filteredQuestions.map((question, qIndex) => (
                       <QuestionItem
                         key={question.id}
                         question={question}
@@ -136,8 +195,8 @@ const SubtopicSection = ({
                         onUpdate={onUpdateQuestion}
                         onDelete={onDeleteQuestion}
                       />
-                    ))
-                  )}
+                    ));
+                  })()}
                   {provided.placeholder}
                 </div>
               )}

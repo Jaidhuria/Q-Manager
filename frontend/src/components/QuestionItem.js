@@ -20,9 +20,36 @@ const QuestionItem = ({ question, index, topicId, subtopicId, onUpdate, onDelete
     }
   };
 
+  const getStatusStyles = (status) => {
+    switch (status) {
+      case 'Solved':
+        return 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-800 dark:text-emerald-300';
+      case 'In Progress':
+        return 'bg-sky-100 dark:bg-sky-900/40 text-sky-800 dark:text-sky-300';
+      case 'Not Started':
+      default:
+        return 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300';
+    }
+  };
+
+  const getNextStatus = (status) => {
+    const order = ['Not Started', 'In Progress', 'Solved'];
+    const currentIndex = order.indexOf(status || 'Not Started');
+    const nextIndex = (currentIndex + 1) % order.length;
+    return order[nextIndex];
+  };
+
   const handleUpdate = async (formData) => {
     await onUpdate(topicId, subtopicId, question.id, formData);
     setIsEditing(false);
+  };
+
+  const handleStatusToggle = async () => {
+    const nextStatus = getNextStatus(question.status);
+    await onUpdate(topicId, subtopicId, question.id, {
+      ...question,
+      status: nextStatus,
+    });
   };
 
   const handleDelete = () => {
@@ -60,6 +87,22 @@ const QuestionItem = ({ question, index, topicId, subtopicId, onUpdate, onDelete
                     >
                       {question.difficulty}
                     </span>
+                  </div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <button
+                      type="button"
+                      onClick={handleStatusToggle}
+                      className="focus:outline-none group"
+                      title="Click to cycle status"
+                    >
+                      <span
+                        className={`px-2 py-1 text-xs font-semibold rounded border border-transparent group-hover:border-primary-400 transition-colors ${getStatusStyles(
+                          question.status || 'Not Started'
+                        )}`}
+                      >
+                        {question.status || 'Not Started'}
+                      </span>
+                    </button>
                   </div>
                   {question.link && (
                     <a

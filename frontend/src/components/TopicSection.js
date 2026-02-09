@@ -15,6 +15,7 @@ const TopicSection = ({
   onAddQuestion,
   onUpdateQuestion,
   onDeleteQuestion,
+  filters,
 }) => {
   const [isExpanded, setIsExpanded] = useState(true);
   const [isAddingSubtopic, setIsAddingSubtopic] = useState(false);
@@ -142,6 +143,7 @@ const TopicSection = ({
                         onAddQuestion={onAddQuestion}
                         onUpdateQuestion={onUpdateQuestion}
                         onDeleteQuestion={onDeleteQuestion}
+                        filters={filters}
                       />
                     ))
                   )}

@@ -5,6 +5,7 @@ const QuestionForm = ({ question, onSubmit, onCancel }) => {
     title: '',
     link: '',
     difficulty: 'Medium',
+    status: 'Not Started',
   });
 
   useEffect(() => {
@@ -13,6 +14,7 @@ const QuestionForm = ({ question, onSubmit, onCancel }) => {
         title: question.title || '',
         link: question.link || '',
         difficulty: question.difficulty || 'Medium',
+        status: question.status || 'Not Started',
       });
     }
   }, [question]);
@@ -63,6 +65,20 @@ const QuestionForm = ({ question, onSubmit, onCancel }) => {
           <option value="Easy">Easy</option>
           <option value="Medium">Medium</option>
           <option value="Hard">Hard</option>
+        </select>
+      </div>
+      <div>
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          Status
+        </label>
+        <select
+          value={formData.status}
+          onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+          className={inputClass}
+        >
+          <option value="Not Started">Not Started</option>
+          <option value="In Progress">In Progress</option>
+          <option value="Solved">Solved</option>
         </select>
       </div>
       <div className="flex justify-end space-x-3 pt-4">
