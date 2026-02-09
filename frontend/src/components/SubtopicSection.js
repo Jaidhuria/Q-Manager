@@ -194,6 +194,7 @@ const SubtopicSection = ({
                         subtopicId={subtopic.id}
                         onUpdate={onUpdateQuestion}
                         onDelete={onDeleteQuestion}
+                        filters={filters}
                       />
                     ));
                   })()}

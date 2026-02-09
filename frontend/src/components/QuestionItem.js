@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { GripVertical, Edit2, Trash2, ExternalLink } from 'lucide-react';
+import { GripVertical, Edit2, Trash2, ExternalLink, Search } from 'lucide-react';
 import { Draggable } from 'react-beautiful-dnd';
 import QuestionForm from './QuestionForm';
 import Modal from './Modal';
 
-const QuestionItem = ({ question, index, topicId, subtopicId, onUpdate, onDelete }) => {
+const QuestionItem = ({ question, index, topicId, subtopicId, onUpdate, onDelete, filters }) => {
   const [isEditing, setIsEditing] = useState(false);
 
   const getDifficultyColor = (difficulty) => {
@@ -58,6 +58,11 @@ const QuestionItem = ({ question, index, topicId, subtopicId, onUpdate, onDelete
     }
   };
 
+  const normalizedSearch = filters?.search?.trim().toLowerCase() || '';
+  const isSearchMatch =
+    normalizedSearch &&
+    question.title.toLowerCase().includes(normalizedSearch);
+
   return (
     <>
       <Draggable draggableId={`question-${question.id}`} index={index}>
@@ -65,8 +70,12 @@ const QuestionItem = ({ question, index, topicId, subtopicId, onUpdate, onDelete
           <div
             ref={provided.innerRef}
             {...provided.draggableProps}
-            className={`bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600 p-4 mb-2 transition-shadow ${
+            className={`bg-white dark:bg-gray-800 rounded-lg border p-4 mb-2 transition-shadow ${
               snapshot.isDragging ? 'shadow-lg' : 'hover:shadow-md'
+            } ${
+              isSearchMatch
+                ? 'border-primary-400 dark:border-primary-400 ring-1 ring-primary-300/60 dark:ring-primary-500/60'
+                : 'border-gray-200 dark:border-gray-600'
             }`}
           >
             <div className="flex items-start justify-between">
@@ -79,6 +88,14 @@ const QuestionItem = ({ question, index, topicId, subtopicId, onUpdate, onDelete
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
+                    {isSearchMatch && (
+                      <span
+                        className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-primary-100 dark:bg-primary-900/60 text-primary-700 dark:text-primary-300"
+                        title="Matches current search"
+                      >
+                        <Search size={12} />
+                      </span>
+                    )}
                     <h4 className="font-medium text-gray-900 dark:text-gray-100">{question.title}</h4>
                     <span
                       className={`px-2 py-1 text-xs font-semibold rounded ${getDifficultyColor(
